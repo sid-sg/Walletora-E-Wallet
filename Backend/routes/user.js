@@ -65,7 +65,6 @@ router.post('/signup',signupMiddleware,signupUserExist,async (req,res)=>{
 
 router.post('/login',loginMiddleware,loginUserExist, async (req,res)=>{
     const {plainPassword} = req.body;
-    // const existingUser = req.existingUser;
     const hashedPassword = req.hashedPassword;
     const comparedPassword = await validatePassword(plainPassword,hashedPassword); 
     if (!comparedPassword) {
@@ -101,6 +100,24 @@ router.put('/updateInfo',jwtAuthMiddleware,updateMiddleware, async(req,res)=>{
         console.log(e);
         return res.status(500).json({ message: "Server Error" });
     }
+});
+
+router.get('/bulk',async (req,res)=>{
+    const filter = req.query.filter || "";
+    const foundUsers = await Users.find({
+        $or: [
+            {'firstName': {"$regex" : filter}},
+            {'lastName': {"$regex" : filter}}
+        ]
+
+    })
+    const mappedUsers = foundUsers.map(({ username, firstName, lastName, _id }) => ({
+        username,
+        firstName,
+        lastName,
+        _id
+    }));
+    res.json({ users: mappedUsers });
 });
 
 module.exports = router;
