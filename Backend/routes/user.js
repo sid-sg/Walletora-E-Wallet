@@ -1,83 +1,17 @@
 const express = require('express');
-const zod = require('zod');
 const jwt = require('jsonwebtoken');
+
 const jwtSecret = require('../config');
-const Users = require('../db')
+const Users = require('../db');
+const {createHash,validatePassword} = require('../utilities/passwordHashing');
+const jwtAuthMiddleware = require('../middlewares/jwtAuthMiddleware');
+const {signupMiddleware,loginMiddleware,updateMiddleware} = require('../middlewares/userSchemaMiddleware');
+
 const router = express.Router();
-
-// zod schemas
-
-const allowedPasswordCharacters = /^[!"#$%&'()*+,\-./0-9:;<=>?@A-Z[\\\]^_`a-z{|}~]+$/;
-
-const passwordSchema = zod.string()
-    .min(8,{message: "Password length must be atleast 8"})
-    .max(40,{message: "Password length must be atmost 40"})
-    .superRefine((val,ctx)=>{5
-        if(!/[A-Z]/.test(val)){
-            ctx.addIssue({
-                code: zod.ZodIssueCode.custom,
-                message: "There must be atleast one uppercase letter"
-            });
-        }
-        if(!/[a-z]/.test(val)){
-            ctx.addIssue({
-                code: zod.ZodIssueCode.custom,
-                message: "There must be atleast one lowercase letter"
-            });
-        }
-        if(!/(?=.*[0-9])|(?=.*[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~])/.test(val)){
-            ctx.addIssue({
-                code: zod.ZodIssueCode.custom,
-                message: "There must be atleast one number of special character"
-            });
-        }
-        if (!allowedPasswordCharacters.test(val)) {
-            ctx.addIssue({
-              code: zod.ZodIssueCode.custom,
-              message: "Password contains invalid characters"
-            });
-          }
-    });
-
-const signUpSchema = zod.object({
-    username: zod.string().email(),
-    firstName: zod.string(),
-    lastName: zod.string(),
-    plainPassword: passwordSchema
-});
-
-const loginSchema = zod.object({
-    username: zod.string().email(),
-    plainPassword: zod.string()
-});
 
 // middlewares
 
 router.use(express.json());
-
-function signupMiddleware(req,res,next){
-    try{
-        signUpSchema.parse(req.body);
-        next();
-    }
-    catch(e){
-        return res.status(400).json({
-            error: e.errors
-        });
-    }  
-}
-
-function loginMiddleware(req,res,next){
-    try{
-        loginSchema.parse(req.body);
-        next();
-    }
-    catch(e){
-        return res.status(400).json({
-            error: e.errors
-        });
-    }  
-}
 
 async function signupUserExist(req,res,next){
     const {username} = req.body;
@@ -100,7 +34,8 @@ async function loginUserExist(req,res,next){
         if(!existingUser){
             return res.status(400).json({message: "user does not exist"});
         }
-        req.existingUser = existingUser;
+        req.hashedPassword = existingUser.hashedPassword;
+        req._id = existingUser._id;
         next();
     }
     catch(e){
@@ -114,7 +49,7 @@ router.post('/signup',signupMiddleware,signupUserExist,async (req,res)=>{
     const {username,firstName,lastName,plainPassword} = req.body;
 
     const newUser = new Users({username,firstName,lastName});
-    const hashedPassword = await newUser.createHash(plainPassword); //blowfish cipher
+    const hashedPassword = await createHash(plainPassword); //blowfish cipher
     newUser.hashedPassword = hashedPassword;
     await newUser.save();
 
@@ -129,14 +64,15 @@ router.post('/signup',signupMiddleware,signupUserExist,async (req,res)=>{
 });
 
 router.post('/login',loginMiddleware,loginUserExist, async (req,res)=>{
-    const {username, plainPassword} = req.body;
-    const existingUser = req.existingUser;
-    const comparedPassword = await existingUser.validatePassword(plainPassword,existingUser.hashedPassword); 
+    const {plainPassword} = req.body;
+    // const existingUser = req.existingUser;
+    const hashedPassword = req.hashedPassword;
+    const comparedPassword = await validatePassword(plainPassword,hashedPassword); 
     if (!comparedPassword) {
-        return res.status(400).json({ message: "Invalid password" });
+        return res.status(400).json({ message: "Wrong password" });
     }
 
-    const userId = existingUser._id;
+    const userId = req._id;
     const token = jwt.sign({ userId: userId }, jwtSecret);
     return res.json({
         message: 'logged in',
@@ -145,8 +81,26 @@ router.post('/login',loginMiddleware,loginUserExist, async (req,res)=>{
 
 });
 
-router.put('/updateInfo',(req,res)=>{
-    res.send('updated info')
+router.put('/updateInfo',jwtAuthMiddleware,updateMiddleware, async(req,res)=>{
+    const updateObject = new Object();
+    if(req.body.firstName){
+        updateObject.firstName = req.body.firstName;
+    }
+    if(req.body.lastName){
+        updateObject.lastName = req.body.lastName;
+    }
+    if(req.body.plainPassword){
+        const hashedPassword = await createHash(req.body.plainPassword);
+        updateObject.hashedPassword = hashedPassword;
+    }
+    try{
+        await Users.updateOne({_id: req.userId}, updateObject);
+        return res.json({message: "updated"})
+    }
+    catch(e){
+        console.log(e);
+        return res.status(500).json({ message: "Server Error" });
+    }
 });
 
 module.exports = router;

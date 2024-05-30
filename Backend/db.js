@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
+// const bcrypt = require('bcrypt');
 mongoose.connect("mongodb+srv://admin:admin@cluster0.ma6l1kd.mongodb.net/E_wallet");
 
 const userSchema = new mongoose.Schema({
@@ -29,15 +29,15 @@ const userSchema = new mongoose.Schema({
     }
 });
 
-userSchema.methods.createHash = async (plainPassword)=>{
-    const saltRounds = 10;
-    const salt = await bcrypt.genSalt(saltRounds);
-    return await bcrypt.hash(plainPassword, salt);
-}
+// userSchema.methods.createHash = async (plainPassword)=>{
+//     const saltRounds = 10;
+//     const salt = await bcrypt.genSalt(saltRounds);
+//     return await bcrypt.hash(plainPassword, salt);
+// }
 
-userSchema.methods.validatePassword = async (plainPassword,hashedPassword)=>{
-    return await bcrypt.compare(plainPassword, hashedPassword);
-}
+// userSchema.methods.validatePassword = async (plainPassword,hashedPassword)=>{
+//     return await bcrypt.compare(plainPassword, hashedPassword);
+// }
 
 
 const Users = mongoose.model('Users',userSchema);
