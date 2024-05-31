@@ -2,7 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 
 const jwtSecret = require('../config');
-const Users = require('../db');
+const {Users,Accounts} = require('../db');
 const {createHash,validatePassword} = require('../utilities/passwordHashing');
 const jwtAuthMiddleware = require('../middlewares/jwtAuthMiddleware');
 const {signupMiddleware,loginMiddleware,updateMiddleware} = require('../middlewares/userSchemaMiddleware');
@@ -14,6 +14,7 @@ const router = express.Router();
 router.use(express.json());
 
 async function signupUserExist(req,res,next){
+    console.log("signUpMiddleware passed");
     const {username} = req.body;
     try{
         const existingUser = await Users.findOne({username});
@@ -46,6 +47,7 @@ async function loginUserExist(req,res,next){
 
 // routes
 router.post('/signup',signupMiddleware,signupUserExist,async (req,res)=>{
+    console.log("signupUserExist passed");
     const {username,firstName,lastName,plainPassword} = req.body;
 
     const newUser = new Users({username,firstName,lastName});
@@ -54,6 +56,10 @@ router.post('/signup',signupMiddleware,signupUserExist,async (req,res)=>{
     await newUser.save();
 
     const userId = newUser._id;
+
+    const newAccount = new Accounts({userId, balance: 1 + Math.random()*10000});
+    await newAccount.save();
+
     const token = jwt.sign({userId: userId}, jwtSecret);
 
     console.log('User saved');

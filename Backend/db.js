@@ -29,17 +29,23 @@ const userSchema = new mongoose.Schema({
     }
 });
 
-// userSchema.methods.createHash = async (plainPassword)=>{
-//     const saltRounds = 10;
-//     const salt = await bcrypt.genSalt(saltRounds);
-//     return await bcrypt.hash(plainPassword, salt);
-// }
-
-// userSchema.methods.validatePassword = async (plainPassword,hashedPassword)=>{
-//     return await bcrypt.compare(plainPassword, hashedPassword);
-// }
-
+const accountSchema = new mongoose.Schema({
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Users',
+        required: true
+    },
+    balance: {
+        type: Number,
+        required: true
+    }
+});
 
 const Users = mongoose.model('Users',userSchema);
+const Accounts = mongoose.model('Accounts',accountSchema);
 
-module.exports = Users;
+
+module.exports = {
+    Users,
+    Accounts
+};
