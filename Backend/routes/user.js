@@ -53,12 +53,25 @@ router.post('/signup',signupMiddleware,signupUserExist,async (req,res)=>{
     const newUser = new Users({username,firstName,lastName});
     const hashedPassword = await createHash(plainPassword); //blowfish cipher
     newUser.hashedPassword = hashedPassword;
-    await newUser.save();
+    try{
+        await newUser.save();
+    }
+    catch(e){
+        return res.json({message: "Database Error while adding new user"});
+    }
+    
 
     const userId = newUser._id;
 
     const newAccount = new Accounts({userId, balance: 1 + Math.random()*10000});
-    await newAccount.save();
+    try{
+        await newAccount.save();
+    }
+    catch(e){
+        console.log(e);
+        return res.json({message: "Database Error while adding new account"});
+    }
+    
 
     const token = jwt.sign({userId: userId}, jwtSecret);
 
