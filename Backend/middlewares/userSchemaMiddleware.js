@@ -2,17 +2,19 @@ const express = require('express');
 const zod = require('zod');
 const {signupSchema,loginSchema,updateSchema} = require('../schema/userSchema')
 
-function signupMiddleware(req,res,next){
-    try{
+function signupMiddleware(req, res, next) {
+    try {
         signupSchema.parse(req.body);
         next();
-    }
-    catch(e){
+    } catch (e) {
         console.log(e);
         return res.status(400).json({
-            error: e.errors
+            errors: e.errors.map(err => ({
+                field: err.path[0],
+                message: err.message
+            }))
         });
-    }  
+    }
 }
 
 function loginMiddleware(req,res,next){
@@ -23,7 +25,10 @@ function loginMiddleware(req,res,next){
     catch(e){
         console.log(e);
         return res.status(400).json({
-            error: e.errors
+            errors: e.errors.map(err => ({
+                field: err.path[0],
+                message: err.message
+            }))
         });
     }  
 }

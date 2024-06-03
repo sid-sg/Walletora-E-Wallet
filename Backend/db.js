@@ -8,20 +8,17 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true,
         lowercase: true,
-        minLength: 3,
         maxLength: 254 
     },
     firstName: {
         type: String,
         required: true,
         tirm: true,
-        maxLength: 30
     },
     lastName: {
         type: String,
         required: true,
         trim: true,
-        maxLength: 30
     },
     hashedPassword: {
         type: String,

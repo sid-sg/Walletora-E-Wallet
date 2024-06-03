@@ -19,12 +19,18 @@ async function signupUserExist(req,res,next){
     try{
         const existingUser = await Users.findOne({username});
         if(existingUser){
-            return res.status(400).json({message: "user already exists"});
+            return res.status(409).json({message: "Username already exists"});
         }
         next();
     }
     catch(e){
-        return res.status(500).json({error: e.errors});
+        console.log(e);
+        // return res.status(500).json({error: e.errors});
+        return res.status(500).json({
+            error: e.errors.map(err => ({
+                message: err.message
+            }))
+        });
     }
 }
 
@@ -33,7 +39,7 @@ async function loginUserExist(req,res,next){
     try{
         const existingUser = await Users.findOne({username});
         if(!existingUser){
-            return res.status(400).json({message: "user does not exist"});
+            return res.status(404).json({message: "User does not exist"});
         }
         req.hashedPassword = existingUser.hashedPassword;
         req._id = existingUser._id;
@@ -87,7 +93,7 @@ router.post('/login',loginMiddleware,loginUserExist, async (req,res)=>{
     const hashedPassword = req.hashedPassword;
     const comparedPassword = await validatePassword(plainPassword,hashedPassword); 
     if (!comparedPassword) {
-        return res.status(400).json({ message: "Wrong password" });
+        return res.status(401).json({ message: "Wrong password" });
     }
 
     const userId = req._id;
