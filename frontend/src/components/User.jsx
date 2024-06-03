@@ -1,6 +1,9 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
+
 
 const User = ({user}) => {
+  const navigate = useNavigate();
   return (
     <div className='flex justify-between'>
         <div className='flex text-white py-2 px-2'>
@@ -12,11 +15,11 @@ const User = ({user}) => {
             </div>
         </div>
         <div>
-        <button className="text-white bg-blue-600 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-500 font-medium rounded-lg text-sm w-full sm:w-auto px-4 py-2.5 mt-2 text-center">Transfer</button>
+        <button className="text-white bg-blue-600 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-500 font-medium rounded-lg text-sm w-full sm:w-auto px-4 py-2.5 mt-2 text-center" onClick={()=>{
+          navigate("/transfer?toId="+user._id+"&firstName="+user.firstName+"&lastName="+user.lastName);
+        }}>Transfer</button>
         </div>
-        {/* <div className='divide-x-2  bg-white'>
 
-        </div> */}
     </div>
     
   )

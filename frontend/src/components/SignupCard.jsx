@@ -23,6 +23,7 @@ const SignupCard = () => {
         plainPassword,
       });
       console.log('response:', res.data);
+      localStorage.setItem("token",res.data.token);
     } 
     catch (error) {
       console.log(error);

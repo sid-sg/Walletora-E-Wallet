@@ -127,22 +127,48 @@ router.put('/updateInfo',jwtAuthMiddleware,updateMiddleware, async(req,res)=>{
     }
 });
 
-router.get('/bulk',async (req,res)=>{
-    const filter = req.query.filter || "";
+router.get('/bulk',jwtAuthMiddleware,async (req,res)=>{
+    const filter = (req.query.filter || "").toLowerCase();
     const foundUsers = await Users.find({
         $or: [
-            {'firstName': {"$regex" : filter}},
-            {'lastName': {"$regex" : filter}}
+            {'firstName': {"$regex" : `^${filter}`,"$options": "i"}},
+            {'lastName': {"$regex" : `^${filter}`,"$options": "i"}}
         ]
 
     })
+    const userId = req.userId;
+
     const mappedUsers = foundUsers.map(({ username, firstName, lastName, _id }) => ({
         username,
         firstName,
         lastName,
         _id
     }));
-    res.json({ users: mappedUsers });
+
+    const filteredUsers = mappedUsers.filter((user)=>{
+        return user._id.toString()!==userId.toString();
+    })
+
+    return res.json({ users: filteredUsers });
 });
+
+router.get('/me',jwtAuthMiddleware, async(req,res)=>{
+    const userId = req.userId;
+    console.log(userId);
+    try{
+        const foundUser = await Users.findById(userId);
+        console.log(foundUser);
+        return res.json({
+            username: foundUser.username,
+            firstName: foundUser.firstName,
+            lastName: foundUser.lastName
+        });
+    }
+    catch(e){
+        return res.status(404).json({message: "User not found"});
+    }
+    
+
+})
 
 module.exports = router;
