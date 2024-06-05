@@ -1,11 +1,5 @@
 import React, { useState,useEffect } from 'react'
 import SendMoney from '../components/SendMoney'
-import AppBar from '../components/AppBar'
-import axios from 'axios'
-
-
-
-
 
 const Transfer = () => {
 

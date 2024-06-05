@@ -16,15 +16,13 @@ router.get('/balance',jwtAuthMiddleware, async (req,res)=>{
 });
 
 router.post('/transfer',jwtAuthMiddleware, async (req,res)=>{
-    console.log("hiii");
-    console.log(req.headers);
     const session = await mongoose.startSession(); //transaction start
     session.startTransaction();
     try{
         const {amount,toUserId} = req.body;
         const myUserId = req.userId;
 
-        if(!amount || !toUserId){
+        if(!amount || !toUserId || amount<=0){
             return res.status(400).json({ message: "Invalid Payload"});
         }
 
@@ -33,6 +31,11 @@ router.post('/transfer',jwtAuthMiddleware, async (req,res)=>{
             await session.abortTransaction();
             session.endSession();
             return res.status(400).json({ message: "Insufficient account balance"});
+        }
+
+        const amountRegex = /^\d+(\.\d{1,2})?$/;
+        if (!amountRegex.test(amount)) {
+        return res.status(400).json({ message: "Amount must have at most 2 decimal places" });
         }
 
         const toAccount = await Accounts.findOne({userId: toUserId}).session(session);

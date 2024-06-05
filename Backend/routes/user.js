@@ -14,7 +14,6 @@ const router = express.Router();
 router.use(express.json());
 
 async function signupUserExist(req,res,next){
-    console.log("signUpMiddleware passed");
     const {username} = req.body;
     try{
         const existingUser = await Users.findOne({username});
@@ -53,7 +52,6 @@ async function loginUserExist(req,res,next){
 
 // routes
 router.post('/signup',signupMiddleware,signupUserExist,async (req,res)=>{
-    console.log("signupUserExist passed");
     const {username,firstName,lastName,plainPassword} = req.body;
 
     const newUser = new Users({username,firstName,lastName});
