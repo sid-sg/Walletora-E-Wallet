@@ -20,7 +20,7 @@ const Users = () => {
 
   return (
     <div className='mt-28'>
-        <div className='text-white ml-28 text-2xl'>
+        <div className='text-white mt-14 ml-8 mr-8 md:ml-20 md:mr-20 lg:ml-28 lg:mr-28  text-2xl'>
             Users
         </div>
         <SearchBar onChange={(e)=>{

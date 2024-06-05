@@ -3,12 +3,15 @@ import CardHeading from './CardHeading'
 import CardSubHeading from '../components/CardSubHeading'
 import InputField from './InputField'
 import axios from 'axios'
+import { useNavigate } from 'react-router-dom';
+
 
 const LoginCard = () => {
 
   const [username,setUsername] = useState("");
   const [plainPassword,setPlainPassword] = useState("");
   const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
 
   const handleSubmit = async(e)=>{
     e.preventDefault();
@@ -20,6 +23,7 @@ const LoginCard = () => {
       });
       console.log("response: ",res);
       localStorage.setItem("token",res.data.token);
+      navigate('/dashboard');
     }
     catch(error){
 

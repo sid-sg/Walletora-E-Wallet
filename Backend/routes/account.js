@@ -16,6 +16,8 @@ router.get('/balance',jwtAuthMiddleware, async (req,res)=>{
 });
 
 router.post('/transfer',jwtAuthMiddleware, async (req,res)=>{
+    console.log("hiii");
+    console.log(req.headers);
     const session = await mongoose.startSession(); //transaction start
     session.startTransaction();
     try{

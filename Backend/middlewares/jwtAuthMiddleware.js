@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const jwtSecret = require('../config');
 
 const jwtAuthMiddleware = (req,res,next)=>{
+    console.log("in jwtAuthMiddleware");
     const header = req.headers.authorization;
 
     if( !(header) || !(header.startsWith('Bearer'))){
@@ -11,6 +12,7 @@ const jwtAuthMiddleware = (req,res,next)=>{
     try{
         const decoded = jwt.verify(token,jwtSecret);
         req.userId = decoded.userId;
+        console.log("all ok");
         next();
     }
     catch(e){

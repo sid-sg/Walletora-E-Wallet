@@ -4,21 +4,21 @@ import Balance from '../components/Balance'
 import Users from '../components/Users'
 import axios from 'axios'
 
-const Dashboard = ({userInfo}) => {
-  // const [userInfo,setUserInfo] =useState({});
+const Dashboard = () => {
+  const [userInfo,setUserInfo] =useState({});
 
-  // const fetchData = async()=>{
-  //   const res = await axios.get("http://localhost:3000/api/v1/user/me",{
-  //       headers:{
-  //           'Authorization': "Bearer "+localStorage.getItem("token")
-  //       }
-  //   });
-  //   setUserInfo(res.data);
-  //   console.log(res.data);
-  //   }
-  //   useEffect(()=>{
-  //       fetchData();
-  //   },[]);
+  const fetchData = async()=>{
+    const res = await axios.get("http://localhost:3000/api/v1/user/me",{
+        headers:{
+            'Authorization': "Bearer "+localStorage.getItem("token")
+        }
+    });
+    setUserInfo(res.data);
+    }
+    useEffect(()=>{
+        fetchData();
+    },[]);
+
 
   return (
     <div>

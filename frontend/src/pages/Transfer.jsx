@@ -1,13 +1,18 @@
-import React from 'react'
+import React, { useState,useEffect } from 'react'
 import SendMoney from '../components/SendMoney'
 import AppBar from '../components/AppBar'
+import axios from 'axios'
 
-const Transfer = ({userInfo}) => {
+
+
+
+
+const Transfer = () => {
+
   return (
     <div>
-        <AppBar userInfo={userInfo}/>
         <div className='flex justify-center h-screen items-center'>
-          <SendMoney userInfo={userInfo}/>
+          <SendMoney/>
         </div>
     </div>
     

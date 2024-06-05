@@ -69,7 +69,7 @@ router.post('/signup',signupMiddleware,signupUserExist,async (req,res)=>{
 
     const userId = newUser._id;
 
-    const newAccount = new Accounts({userId, balance: 1 + Math.random()*10000});
+    const newAccount = new Accounts({userId, balance: (1 + Math.random()*10000).toFixed(2)});
     try{
         await newAccount.save();
     }
@@ -154,10 +154,10 @@ router.get('/bulk',jwtAuthMiddleware,async (req,res)=>{
 
 router.get('/me',jwtAuthMiddleware, async(req,res)=>{
     const userId = req.userId;
-    console.log(userId);
+    // console.log(userId);
     try{
         const foundUser = await Users.findById(userId);
-        console.log(foundUser);
+        // console.log(foundUser);
         return res.json({
             username: foundUser.username,
             firstName: foundUser.firstName,

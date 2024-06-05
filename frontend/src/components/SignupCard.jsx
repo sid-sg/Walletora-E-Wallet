@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import CardHeading from './CardHeading';
-// import CardSubHeading from '../components/CardSubHeading';
+import { useNavigate } from 'react-router-dom';
 import InputField from './InputField';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
@@ -11,6 +11,7 @@ const SignupCard = () => {
   const [username, setUsername] = useState('');
   const [plainPassword, setPlainPassword] = useState('');
   const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,6 +25,8 @@ const SignupCard = () => {
       });
       console.log('response:', res.data);
       localStorage.setItem("token",res.data.token);
+      
+      navigate('/dashboard');
     } 
     catch (error) {
       console.log(error);
